@@ -119,9 +119,8 @@ hono:
 ditto:
   global:
     basicAuthUsers:
-      ditto:
-        user: ditto
-        password: ditto
+    - user: ditto
+      password: ditto
 
   connectivity:
     resources:
