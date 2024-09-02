@@ -1,0 +1,4 @@
+[submodule "charts/ditto"]
+	path = charts/ditto
+	url = https://github.com/ATNoG/eclipse-ditto
+	branch = atnog-ditto
