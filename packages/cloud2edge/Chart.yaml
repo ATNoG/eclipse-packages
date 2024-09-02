@@ -36,5 +36,5 @@ dependencies:
     version: ~2.6.3
     repository: "https://ATNoG.github.io/ditto-helm-chart/"
   - name: ditto
-    version: ~3.5.12
+    version: ~3.5.17
     repository: "https://ATNoG.github.io/ditto-helm-chart/"

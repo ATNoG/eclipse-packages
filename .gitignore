@@ -10,3 +10,4 @@ Chart.lock
 # dependencies of charts get downloaded to chart/<chartname>/carts - so exclude those:
 charts/*/charts
 /charts/ditto/requirements.lock
+*.tgz
