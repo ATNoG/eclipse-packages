@@ -55,7 +55,7 @@ function create_cert {
   echo "creating $1 key and certificate"
   create_key $1-key.pem
   openssl req -config ca_opts -new -key $DIR/$1-key.pem -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=$1" | \
-    openssl x509 -req -extfile ca_opts -extensions req_ext_$1 -out $DIR/$1.pem -days 365 -CA $DIR/ca-cert.pem -CAkey $DIR/ca-key.pem -CAcreateserial
+    openssl x509 -req -extfile ca_opts -extensions req_ext_$1 -out $DIR/$1.pem -days 3650 -CA $DIR/ca-cert.pem -CAkey $DIR/ca-key.pem -CAcreateserial
   cat $DIR/$1.pem $DIR/ca-cert.pem > $DIR/$1-cert.pem && rm $DIR/$1.pem
   if [ $2 ]
   then
@@ -69,7 +69,7 @@ function create_client_cert {
   echo "creating client key and certificate for device $1"
   create_key device-$1-key.pem
   openssl req -new -key "$DIR/device-$1-key.pem" -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=Device $1" | \
-    openssl x509 -req -out "$DIR/device-$1-cert.pem" -days 365 -CA $DIR/default_tenant-cert.pem -CAkey $DIR/default_tenant-key.pem -CAcreateserial
+    openssl x509 -req -out "$DIR/device-$1-cert.pem" -days 3650 -CA $DIR/default_tenant-cert.pem -CAkey $DIR/default_tenant-key.pem -CAcreateserial
   SUBJECT=$(openssl x509 -in "$DIR/device-$1-cert.pem" -noout -subject -nameopt RFC2253)
   echo "cert.device-$1.$SUBJECT" >> $DIR/device-certs.properties
 }
@@ -86,13 +86,13 @@ fi
 
 echo "creating root key and certificate"
 create_key root-key.pem
-openssl req -x509 -config ca_opts -new -key $DIR/root-key.pem -out $DIR/root-cert.pem -days 365 -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=root"
+openssl req -x509 -config ca_opts -new -key $DIR/root-key.pem -out $DIR/root-cert.pem -days 3650 -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=root"
 
 echo ""
 echo "creating CA key and certificate"
 create_key ca-key.pem
-openssl req -config ca_opts -reqexts intermediate_ext -new -key $DIR/ca-key.pem -days 365 -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=ca" | \
- openssl x509 -req -extfile ca_opts -extensions intermediate_ext -out $DIR/ca-cert.pem -days 365 -CA $DIR/root-cert.pem -CAkey $DIR/root-key.pem -CAcreateserial
+openssl req -config ca_opts -reqexts intermediate_ext -new -key $DIR/ca-key.pem -days 3650 -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=ca" | \
+ openssl x509 -req -extfile ca_opts -extensions intermediate_ext -out $DIR/ca-cert.pem -days 3650 -CA $DIR/root-cert.pem -CAkey $DIR/root-key.pem -CAcreateserial
 
 echo ""
 echo "downloading CA and root certificates from Let's Encrypt"
@@ -107,7 +107,7 @@ rm $DIR/lets-encrypt-r3.pem $DIR/isrgrootx1.pem
 echo ""
 echo "creating CA key and certificate for DEFAULT_TENANT"
 create_key default_tenant-key.pem
-openssl req -x509 -key $DIR/default_tenant-key.pem -out $DIR/default_tenant-cert.pem -days 365 -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=DEFAULT_TENANT_CA"
+openssl req -x509 -key $DIR/default_tenant-key.pem -out $DIR/default_tenant-cert.pem -days 3650 -subj "/C=CA/L=Ottawa/O=Eclipse IoT/OU=Hono/CN=DEFAULT_TENANT_CA"
 
 echo ""
 echo "extracting trust anchor information from tenant CA cert"
