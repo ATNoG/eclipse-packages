@@ -6,13 +6,11 @@ See: https://eclipse.org/packages
 
 ## Submodules
 
-This repository contains submodules for each of the packages. To clone the repository with all submodules, use:
+To update the submodules to the latest commit, use the following commands:
 
 ```bash
-git clone git@github.com:ATNoG/eclipse-packages.git
-cd eclipse-packages
-git checkout atnog-packages
 git submodule update --init --recursive
+git submodule update --remote --merge
 ```
 
 ## Package Charts
