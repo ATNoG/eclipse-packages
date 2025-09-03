@@ -138,6 +138,10 @@ adapters:
   # can be verified by the Auth Server component.
   externalAdaptersEnabled: false
 
+  # useExternalAuth indicates whether adapters deployed through the chart should
+  # authenticate using the SASL EXTERNAL as opposed to the PLAIN mechanism.
+  useExternalAuth: false
+
   # amqpMessagingNetworkSpec contains Hono client properties used by all protocol
   # adapters for connecting to the AMQP Messaging Network to forward downstream messages to.
   # This property MUST be set if "messagingNetworkTypes" contains "amqp" and
