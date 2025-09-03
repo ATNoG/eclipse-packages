@@ -347,7 +347,12 @@ The scope passed in is expected to be a dict with keys
 name: {{ printf "Hono %s" .component | quote }}
 host: {{ printf "%s-service-device-registry" ( include "hono.fullname" .dot ) | quote }}
 port: 5671
+{{- if .dot.Values.adapters.useExternalAuth }}
+keyPath: "/opt/hono/tls/tls.key"
+certPath: "/opt/hono/tls/tls.crt"
+{{- else }}
 credentialsPath: "/opt/hono/config/adapter.credentials"
+{{- end }}
 trustStorePath: {{ .dot.Values.deviceRegistryExample.clientTrustStorePath | default "/opt/hono/tls/ca.crt" | quote }}
 hostnameVerificationRequired: false
 {{- end }}
@@ -411,7 +416,12 @@ commandRouter:
   name: {{ printf "Hono %s" $adapter | quote }}
   host: {{ printf "%s-service-command-router" ( include "hono.fullname" .dot ) | quote }}
   port: 5671
+  {{- if .dot.Values.adapters.useExternalAuth }}
+  keyPath: "/opt/hono/tls/tls.key"
+  certPath: "/opt/hono/tls/tls.crt"
+  {{- else }}
   credentialsPath: "/opt/hono/config/adapter.credentials"
+  {{- end }}
   trustStorePath: {{ .dot.Values.commandRouterService.clientTrustStorePath | default "/opt/hono/tls/ca.crt" | quote }}
   hostnameVerificationRequired: false
 {{- end }}
