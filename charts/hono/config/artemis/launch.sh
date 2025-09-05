@@ -19,5 +19,5 @@
 #   cp $AMQ_HOME/conf/* ~/broker/etc/
 # .
 # This allows usage of a custom broker.xml and other config files, provided in the "$AMQ_HOME/conf/" directory.
-sed -i -E 's/^([[:space:]]*)configure[[:space:]]*$/\0\n\1cp $AMQ_HOME\/conf\/\* ~\/broker\/etc\//g' $AMQ_HOME/bin/launch.sh
+sed -i -E 's/^([[:space:]]*)configure[[:space:]]*$/\0\n\1cp -Lr $AMQ_HOME\/conf\/\* ~\/broker\/etc/g' $AMQ_HOME/bin/launch.sh
 $AMQ_HOME/bin/launch.sh
