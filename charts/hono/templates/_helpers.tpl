@@ -300,6 +300,14 @@ kafka:
     security.protocol: "SASL_PLAINTEXT"
     sasl.mechanism: "SCRAM-SHA-512"
     sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{ first .dot.Values.kafka.sasl.client.users }}\" password=\"{{ first .dot.Values.kafka.sasl.client.passwords }}\";"
+  {{- else if eq .dot.Values.kafka.listeners.client.protocol "SSL" }}
+    security.protocol: "SSL"
+    ssl.truststore.type: "PEM"
+    ssl.truststore.location: "/opt/hono/tls/ca.crt"
+    ssl.keystore.type: "JKS"
+    ssl.keystore.password: ${KEY_STORE_PASSWORD}
+    ssl.keystore.location: {{ .dot.Values.clientBrokerKeyStore.path | required "clientBrokerKeyStore.path must be set when using Kafka with SSL" | quote }}
+    ssl.endpoint.identification.algorithm: "" # Disables hostname verification. Don't do this in productive setups!
   {{- else }}
     {{- required ".Values.kafka.listeners.client.protocol has unsupported value" nil }}
   {{- end }}
@@ -450,6 +458,13 @@ The scope passed in is expected to be a dict with keys
 {{- $loggingProfile := default "dev" .componentConfig.quarkusLoggingProfile }}
 - name: "QUARKUS_CONFIG_LOCATIONS"
   value: {{ default ( printf "/opt/hono/default-logging-config/logging-quarkus-%s.yml" $loggingProfile ) .componentConfig.quarkusConfigLocations | quote }}
+{{- if and .dot.Values.kafkaMessagingClusterExample.enabled (eq .dot.Values.kafka.listeners.client.protocol "SSL") }}
+- name: KEY_STORE_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .dot.Values.clientBrokerKeyStore.passwordSecretRef.name | required "clientBrokerKeyStore.passwordSecretRef.name must be set when using Kafka with SSL" | quote }}
+      key: {{ dig "selector" "password" .dot.Values.clientBrokerKeyStore.passwordSecretRef | quote }}
+{{- end }}
 {{- end }}
 
 {{/*
