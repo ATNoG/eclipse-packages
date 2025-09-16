@@ -615,10 +615,10 @@ The scope passed in is expected to be a dict with keys
   readOnly: true
 {{- end }}
 {{- $trustStoreConfigMapName := ( default "none" .componentConfig.tlsTrustStoreConfigMap | toString ) }}
-{{- if ( ne $trustStoreConfigMapName "none" ) }}
+{{- if ( or ( ne $trustStoreConfigMapName "none" ) .componentConfig.tlsTrustStoreSecret) }}
 - name: "tls-trust-store"
   mountPath: "/opt/hono/tls/ca.crt"
-  subPath: "ca.crt"
+  subPath: {{ dig "tlsTrustStoreSecret" "selector" "ca.crt" .componentConfig | quote }}
   readOnly: true
 {{- end }}
 - name: "default-logging-config"
@@ -654,6 +654,10 @@ The scope passed in is expected to be a dict with keys
 - name: "tls-trust-store"
   configMap:
     name: {{ ternary ( printf "%s-example-trust-store" ( include "hono.fullname" .dot )) $trustStoreConfigMapName ( eq $trustStoreConfigMapName "example" ) | quote }}
+{{- else if .componentConfig.tlsTrustStoreSecret }}
+- name: "tls-trust-store"
+  secret:
+    secretName: {{ .componentConfig.tlsTrustStoreSecret.secretName | quote }}
 {{- end }}
 - name: "default-logging-config"
   configMap:
