@@ -113,6 +113,13 @@ messagingNetworkTypes:
 # for the documentation of the corresponding "useLegacyTraceContextFormat" Hono client property.
 useLegacyAmqpTraceContextFormat: true
 
+# Configuration for the client keystore when using kafka with SSL
+clientBrokerKeyStore:
+  path: "/opt/hono/tls/keystore.jks"
+  passwordSecretRef:
+    # name: "my-secret"
+    # selector: "my-password"
+
 # Whether NodePort services should use the preconfigured ports or dynamic port allocation
 useDynamicNodePorts: false
 
