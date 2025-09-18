@@ -114,11 +114,17 @@ messagingNetworkTypes:
 useLegacyAmqpTraceContextFormat: true
 
 # Configuration for the client keystore when using kafka with SSL
-clientBrokerKeyStore:
-  path: "/opt/hono/tls/keystore.jks"
-  passwordSecretRef:
-    # name: "my-secret"
-    # selector: "my-password"
+brokerClientTlsConfig:
+  trustStore:
+    type: "PEM"
+    path: "/opt/hono/tls/trust/ca.crt"
+  keyStore:
+    type: "JKS"
+    path: "/opt/hono/tls/keys/keystore.jks"
+    passwordSecretRef:
+      # name: "my-secret"
+      selector: "password"
+
 
 # Whether NodePort services should use the preconfigured ports or dynamic port allocation
 useDynamicNodePorts: false
@@ -158,9 +164,9 @@ adapters:
   # However, if "amqpMessagingNetworkExample.enabled" is set to true, only
   # "keyPath", "certPath", "trustStorePath", "hostnameVerificationRequired" can be set.
   amqpMessagingNetworkSpec:
-    keyPath: "/opt/hono/tls/tls.key"
-    certPath: "/opt/hono/tls/tls.crt"
-    trustStorePath: "/opt/hono/tls/ca.crt"
+    keyPath: "/opt/hono/tls/keys/tls.key"
+    certPath: "/opt/hono/tls/keys/tls.crt"
+    trustStorePath: "/opt/hono/tls/trust/ca.crt"
     hostnameVerificationRequired: false
   #  host: "my-amqp-host"
   #  port: 5671
@@ -176,9 +182,9 @@ adapters:
   # However, if "amqpMessagingNetworkExample.enabled" is set to true, only
   # "keyPath", "certPath", "trustStorePath", "hostnameVerificationRequired" can be set.
   commandAndControlSpec:
-    keyPath: "/opt/hono/tls/tls.key"
-    certPath: "/opt/hono/tls/tls.crt"
-    trustStorePath: "/opt/hono/tls/ca.crt"
+    keyPath: "/opt/hono/tls/keys/tls.key"
+    certPath: "/opt/hono/tls/keys/tls.crt"
+    trustStorePath: "/opt/hono/tls/trust/ca.crt"
     hostnameVerificationRequired: false
 
   # kafkaMessagingSpec contains the configuration used by all protocol
@@ -1825,20 +1831,20 @@ amqpMessagingNetworkExample:
     # certFile contains the absolute path to a PEM file containing
     # the X.509 certificate that the router should use for authenticating
     # to clients
-    certFile: "/opt/hono/tls/tls.crt"
+    certFile: "/opt/hono/tls/keys/tls.crt"
     # keyFile contains the absolute path to a PEM file containing
     # the private key that the router should use for authenticating
     # to clients
-    keyFile: "/opt/hono/tls/tls.key"
+    keyFile: "/opt/hono/tls/keys/tls.key"
     # trustStore contains the absolute path to a PEM file containing
     # the X.509 certificates that the router should use as trust anchors
     # when authenticating clients connecting to the router in a TLS
     # handshake
-    trustStore: "/opt/hono/tls/ca.crt"
+    trustStore: "/opt/hono/tls/trust/ca.crt"
     # serverTrustStore contains the absolute path to a PEM file containing
     # the X.509 certificates that the router should use as trust anchors
     # when authenticating to servers as part of a TLS handshake
-    serverTrustStore: "/opt/hono/tls/ca.crt"
+    serverTrustStore: "/opt/hono/tls/trust/ca.crt"
     # uidFormat contains the format string to use for extracting the user ID from
     # the subject DN of certificates that clients use for authenticating to the router's
     # "internal" listener.
