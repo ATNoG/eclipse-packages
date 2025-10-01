@@ -692,7 +692,9 @@ Configures NodePort on component's service spec.
 {{- define "hono.nodePort" }}
 {{- if ne .dot.Values.platform "openshift" }}
 {{- if any ( eq (default "nil" .dot.Values.serviceType) "NodePort" ) ( eq .dot.Values.useLoadBalancer false ) }}
+{{- if not .dot.Values.useDynamicNodePorts }}
 nodePort: {{ .port }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
