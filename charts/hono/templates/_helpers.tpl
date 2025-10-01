@@ -451,6 +451,9 @@ The scope passed in is expected to be a dict with keys
 - (mandatory) "componentConfig": the component's configuration properties from the values.yaml file
 */}}
 {{- define "hono.component.envFrom" }}
+{{- with .componentConfig.extraEnv }}
+{{ . | toYaml }}
+{{- end }}
 {{- if or .componentConfig.envConfigMap .componentConfig.envSecret }}
 envFrom:
 {{- if .componentConfig.envConfigMap }}
