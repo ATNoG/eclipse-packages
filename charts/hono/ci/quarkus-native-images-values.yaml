@@ -80,8 +80,8 @@ adapters:
       coap:
         bindAddress: "0.0.0.0"
         port: 5684
-        keyPath: "/opt/hono/tls/tls.key"
-        certPath: "/opt/hono/tls/tls.crt"
+        keyPath: "/opt/hono/tls/keys/tls.key"
+        certPath: "/opt/hono/tls/keys/tls.crt"
         tenantIdleTimeout: "1h"
         maxConnections: 70
     resources:

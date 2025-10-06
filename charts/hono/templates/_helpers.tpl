@@ -293,13 +293,21 @@ kafka:
     security.protocol: "SASL_SSL"
     sasl.mechanism: "SCRAM-SHA-512"
     sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{ first .dot.Values.kafka.sasl.client.users }}\" password=\"{{ first .dot.Values.kafka.sasl.client.passwords }}\";"
-    ssl.truststore.type: "PEM"
-    ssl.truststore.location: "/opt/hono/tls/ca.crt"
+    ssl.truststore.type: {{ .dot.Values.brokerClientTlsConfig.trustStore.type | quote }}
+    ssl.truststore.location: {{ .dot.Values.brokerClientTlsConfig.trustStore.path | quote }}
     ssl.endpoint.identification.algorithm: "" # Disables hostname verification. Don't do this in productive setups!
   {{- else if eq .dot.Values.kafka.listeners.client.protocol "SASL_PLAINTEXT" }}
     security.protocol: "SASL_PLAINTEXT"
     sasl.mechanism: "SCRAM-SHA-512"
     sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{ first .dot.Values.kafka.sasl.client.users }}\" password=\"{{ first .dot.Values.kafka.sasl.client.passwords }}\";"
+  {{- else if eq .dot.Values.kafka.listeners.client.protocol "SSL" }}
+    security.protocol: "SSL"
+    ssl.truststore.type: {{ .dot.Values.brokerClientTlsConfig.trustStore.type | quote }}
+    ssl.truststore.location: {{ .dot.Values.brokerClientTlsConfig.trustStore.path | quote }}
+    ssl.keystore.type: {{ .dot.Values.brokerClientTlsConfig.keyStore.type | quote }}
+    ssl.keystore.password: ${KEY_STORE_PASSWORD}
+    ssl.keystore.location: {{ .dot.Values.brokerClientTlsConfig.keyStore.path | quote }}
+    ssl.endpoint.identification.algorithm: "" # Disables hostname verification. Don't do this in productive setups!
   {{- else }}
     {{- required ".Values.kafka.listeners.client.protocol has unsupported value" nil }}
   {{- end }}
@@ -347,8 +355,13 @@ The scope passed in is expected to be a dict with keys
 name: {{ printf "Hono %s" .component | quote }}
 host: {{ printf "%s-service-device-registry" ( include "hono.fullname" .dot ) | quote }}
 port: 5671
+{{- if .dot.Values.adapters.useExternalAuth }}
+keyPath: "/opt/hono/tls/keys/tls.key"
+certPath: "/opt/hono/tls/keys/tls.crt"
+{{- else }}
 credentialsPath: "/opt/hono/config/adapter.credentials"
-trustStorePath: {{ .dot.Values.deviceRegistryExample.clientTrustStorePath | default "/opt/hono/tls/ca.crt" | quote }}
+{{- end }}
+trustStorePath: {{ .dot.Values.deviceRegistryExample.clientTrustStorePath | default "/opt/hono/tls/trust/ca.crt" | quote }}
 hostnameVerificationRequired: false
 {{- end }}
 
@@ -411,8 +424,13 @@ commandRouter:
   name: {{ printf "Hono %s" $adapter | quote }}
   host: {{ printf "%s-service-command-router" ( include "hono.fullname" .dot ) | quote }}
   port: 5671
+  {{- if .dot.Values.adapters.useExternalAuth }}
+  keyPath: "/opt/hono/tls/keys/tls.key"
+  certPath: "/opt/hono/tls/keys/tls.crt"
+  {{- else }}
   credentialsPath: "/opt/hono/config/adapter.credentials"
-  trustStorePath: {{ .dot.Values.commandRouterService.clientTrustStorePath | default "/opt/hono/tls/ca.crt" | quote }}
+  {{- end }}
+  trustStorePath: {{ .dot.Values.commandRouterService.clientTrustStorePath | default "/opt/hono/tls/trust/ca.crt" | quote }}
   hostnameVerificationRequired: false
 {{- end }}
 {{- if .dot.Values.prometheus.createInstance }}
@@ -440,6 +458,13 @@ The scope passed in is expected to be a dict with keys
 {{- $loggingProfile := default "dev" .componentConfig.quarkusLoggingProfile }}
 - name: "QUARKUS_CONFIG_LOCATIONS"
   value: {{ default ( printf "/opt/hono/default-logging-config/logging-quarkus-%s.yml" $loggingProfile ) .componentConfig.quarkusConfigLocations | quote }}
+{{- if and .dot.Values.kafkaMessagingClusterExample.enabled (eq .dot.Values.kafka.listeners.client.protocol "SSL") }}
+- name: KEY_STORE_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .componentConfig.brokerClientTlsConfig.keyStore.passwordSecretRef.name | default .dot.Values.brokerClientTlsConfig.keyStore.passwordSecretRef.name | required "brokerClientTlsConfig.keyStore.passwordSecretRef.name must be set when using Kafka with SSL" | quote }}
+      key: {{ .componentConfig.brokerClientTlsConfig.keyStore.passwordSecretRef.selector | default .dot.Values.brokerClientTlsConfig.keyStore.passwordSecretRef.selector | quote }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -596,19 +621,13 @@ The scope passed in is expected to be a dict with keys
 {{- $keySecretName := ( default "none" .componentConfig.tlsKeysSecret | toString ) }}
 {{- if ( ne $keySecretName "none" ) }}
 - name: "tls-keys"
-  mountPath: "/opt/hono/tls/tls.key"
-  subPath: "tls.key"
-  readOnly: true
-- name: "tls-keys"
-  mountPath: "/opt/hono/tls/tls.crt"
-  subPath: "tls.crt"
+  mountPath: "/opt/hono/tls/keys/"
   readOnly: true
 {{- end }}
 {{- $trustStoreConfigMapName := ( default "none" .componentConfig.tlsTrustStoreConfigMap | toString ) }}
-{{- if ( ne $trustStoreConfigMapName "none" ) }}
+{{- if ( or ( ne $trustStoreConfigMapName "none" ) .componentConfig.tlsTrustStoreSecret) }}
 - name: "tls-trust-store"
-  mountPath: "/opt/hono/tls/ca.crt"
-  subPath: "ca.crt"
+  mountPath: "/opt/hono/tls/trust/"
   readOnly: true
 {{- end }}
 - name: "default-logging-config"
@@ -644,6 +663,10 @@ The scope passed in is expected to be a dict with keys
 - name: "tls-trust-store"
   configMap:
     name: {{ ternary ( printf "%s-example-trust-store" ( include "hono.fullname" .dot )) $trustStoreConfigMapName ( eq $trustStoreConfigMapName "example" ) | quote }}
+{{- else if .componentConfig.tlsTrustStoreSecret }}
+- name: "tls-trust-store"
+  secret:
+    secretName: {{ .componentConfig.tlsTrustStoreSecret.secretName | quote }}
 {{- end }}
 - name: "default-logging-config"
   configMap:

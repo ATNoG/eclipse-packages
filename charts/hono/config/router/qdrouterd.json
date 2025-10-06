@@ -77,6 +77,8 @@
     {{- if not .Values.amqpMessagingNetworkExample.broker.servicebus.host }}
     "caCertFile": "{{ .Values.amqpMessagingNetworkExample.dispatchRouter.serverTrustStore }}",
     {{- end }}
+    "certFile": "{{ .Values.amqpMessagingNetworkExample.dispatchRouter.certFile }}",
+    "privateKeyFile": "{{ .Values.amqpMessagingNetworkExample.dispatchRouter.keyFile }}",
     "protocols": "TLSv1.2"
   }],
 
@@ -85,9 +87,13 @@
     "sslProfile": "broker-profile",
     "role": "route-container",
     "port": {{ .Values.amqpMessagingNetworkExample.broker.port }},
+    {{- if .Values.adapters.useExternalAuth }}
+    "saslMechanisms": "EXTERNAL",
+    {{- else }}
     "saslMechanisms": "PLAIN",
     "saslUsername": "{{ .Values.amqpMessagingNetworkExample.broker.saslUsername }}",
     "saslPassword": "file:/opt/hono/config/broker-password",
+    {{- end }}
     {{- if .Values.amqpMessagingNetworkExample.broker.servicebus.host }}
     "host": "{{ .Values.amqpMessagingNetworkExample.broker.servicebus.host }}",
     "idleTimeoutSeconds": 120

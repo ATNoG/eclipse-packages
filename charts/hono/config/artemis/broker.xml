@@ -157,8 +157,16 @@
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
          <!--<acceptor name="amqp">tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpMinLargeMessageSize=102400;amqpDuplicateDetection=true</acceptor>-->
          <acceptor name="amqps">
-             tcp://0.0.0.0:5671?protocols=AMQP;sslEnabled=true;
-             keyStorePath=file:/home/jboss/broker/etc/artemisKeyStore.p12;keyStorePassword=artemiskeys;
+             tcp://0.0.0.0:5671?protocols=AMQP;sslEnabled=true;sslAutoReload=true;
+             {{- $keyStorePath := ( default "/home/jboss/broker/etc/artemisKeyStore.p12" .keyStorePath | toString ) }}
+             keyStorePath=file:{{ $keyStorePath }};keyStorePassword=${KEY_STORE_PASSWORD};
+             {{- if .trustStorePath }}
+             trustStorePath=file:{{ .trustStorePath | toString }};trustStorePassword=${KEY_STORE_PASSWORD};
+             needClientAuth=true;
+             saslMechanisms=EXTERNAL;
+             {{- else }}
+             saslMechanisms=PLAIN;
+             {{- end }}
          </acceptor>
 
       </acceptors>
