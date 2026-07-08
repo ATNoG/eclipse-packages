@@ -2064,6 +2064,8 @@ dataGridExample:
   # dataMaxSize contains the maximum size of off-heap memory used for storing data per Infinispan node
   dataMaxSize: "30 MB"
 
+otelExporterDisable: false
+
 jaegerBackendExample:
 
   # enabled indicates whether the example Jaeger all-in-one

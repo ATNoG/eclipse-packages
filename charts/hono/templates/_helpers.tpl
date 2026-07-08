@@ -508,6 +508,9 @@ quarkus:
     category:
       "io.quarkus.vertx.core.runtime":
         level: DEBUG
+  otel:
+    sdk:
+      disabled: {{ .dot.Values.otelExporterDisable }}
   {{- if or .dot.Values.jaegerBackendExample.enabled .dot.Values.otelCollectorAgentConfigMap }}
   opentelemetry:
     tracer:
