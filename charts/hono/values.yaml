@@ -1068,6 +1068,7 @@ deviceRegistryExample:
       memory: "300Mi"
 
   svc:
+    enabled: true
     annotations: {}
     loadBalancerIP:
 
