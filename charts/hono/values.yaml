@@ -262,6 +262,8 @@ adapters:
   amqp:
     # enabled indicates if Hono's AMQP 1.0 adapter should be deployed.
     enabled: true
+    # replicas indicates the number of replicas to deploy
+    replicas: 1
     # imageName contains the name (excluding registry)
     # of the container image to use for the AMQP adapter
     imageName: "eclipse/hono-adapter-amqp"
@@ -391,6 +393,8 @@ adapters:
   coap:
     # enabled indicates if Hono's CoAP adapter should be deployed.
     enabled: false
+    # replicas indicates the number of replicas to deploy
+    replicas: 1
     # imageName contains the name (excluding registry)
     # of the container image to use for the CoAP adapter
     imageName: "eclipse/hono-adapter-coap"
@@ -518,6 +522,8 @@ adapters:
   http:
     # enabled indicates if Hono's HTTP adapter should be deployed.
     enabled: true
+    # replicas indicates the number of replicas to deploy
+    replicas: 1
     # imageName contains the name (excluding registry)
     # of the container image to use for the HTTP adapter
     imageName: "eclipse/hono-adapter-http"
@@ -647,6 +653,8 @@ adapters:
   lora:
     # enabled indicates if Hono's Lora adapter should be deployed.
     enabled: false
+    # replicas indicates the number of replicas to deploy
+    replicas: 1
     # imageName contains the name (excluding registry)
     # of the container image to use for the LoRa adapter
     imageName: "eclipse/hono-adapter-lora"
@@ -775,6 +783,8 @@ adapters:
   mqtt:
     # enabled indicates if Hono's MQTT 3.1.1 adapter should be deployed.
     enabled: true
+    # replicas indicates the number of replicas to deploy
+    replicas: 1
     # imageName contains the name (excluding registry)
     # of the container image to use for the MQTT adapter
     imageName: "eclipse/hono-adapter-mqtt"
