@@ -316,11 +316,8 @@ kafka:
   {{- $fallbackBootstrapServers := dig "commonClientConfig" "bootstrap.servers" "" .dot.Values.adapters.kafkaMessagingSpec }}
   {{- if not ( any $bootstrapServers $fallbackBootstrapServers ) }}
     {{- required "At least 'bootstrap.servers' MUST be provided if example Kafka cluster is disabled" nil }}
-  {{- else if $bootstrapServers }}
-    {{- .kafkaMessagingSpec | toYaml | nindent 2 }}
   {{- else }}
-  commonClientConfig:
-    {{- .dot.Values.adapters.kafkaMessagingSpec.commonClientConfig | toYaml | nindent 4 }}
+    {{- mergeOverwrite .dot.Values.adapters.kafkaMessagingSpec .kafkaMessagingSpec | toYaml | nindent 2 }}
   {{- end }}
 {{- end }}
 {{- end }}
